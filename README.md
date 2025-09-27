@@ -100,6 +100,7 @@ accelerate launch --num_processes 4 --multi_gpu \
 
 - Benchmark (COCO2017val)
 For fair Comparison, we train the two cases in COCO2017train dataset and then evaluate COCO2017val dataset.
+|:------:|:------:|
 |Model|Clip Score|
 |IP-Adapter|???||
 |IP-Adapter tuning LayerNorm|???||
