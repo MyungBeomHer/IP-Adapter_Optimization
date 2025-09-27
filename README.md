@@ -18,8 +18,15 @@ wget http://images.cocodataset.org/annotations/annotations_trainval2017.zip
 
 ## ➡️ Data Preparation
 ```bash
-cd data_in/NER-master/
-unzip 말뭉치\ -\ 형태소_개체명/.zip
+python make_coco_pairs.py \
+  --coco_captions /data1/coco2017/COCO2017/annotations/captions_train2017.json \
+  --out_json /data1/coco2017/COCO2017/train_pairs.json \
+  --pick random
+
+python make_coco_pairs.py \
+  --coco_captions /data1/coco2017/COCO2017/annotations/captions_val2017.json \
+  --out_json /data1/coco2017/COCO2017/val_pairs.json \
+  --pick random
 ```
 
 ### Requirements
@@ -45,7 +52,26 @@ accelerate launch --num_processes 4 --multi_gpu --mixed_precision "fp16" \
   --save_steps=2000
 ```
 
-### Model
+### Image generate 
+```bash
+  ### img generate by Tuning Img encoder 
+  #1st output_dir_layerNorm/model_1.safetensors -move/change-> image_encoder/model.safetensors
+  #2nd image_encoder/config.json -move-> image_encoder-20/config.json
+accelerate launch --num_processes 4 --multi_gpu \
+  gen_ipadapter_from_ckpt.py \
+  --pretrained_model runwayml/stable-diffusion-v1-5 \
+  --image_encoder_path /home/gpuadmin/MB/IP-Adapter-main/output_dir_layerNorm/image_encoder-20 \
+  --checkpoint_dir /home/gpuadmin/MB/IP-Adapter-main/output_dir_layerNorm/checkpoint-20 \
+  --pairs_json /data1/coco2017/COCO2017/val_pairs.json \
+  --image_root /data1/coco2017/COCO2017/val2017 \
+  --out_dir /home/gpuadmin/MB/ipadapter_gen_tuning_LN/ckpt20 \
+  --num_images_per_sample 4 \
+  --steps 18 \
+  --fp16
+```
+
+
+### preprocessing for tuning LayerNorm
 <p align="center">
   <img src="/figure/model.png" width=100%> <br>
 </p>
