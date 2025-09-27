@@ -11,8 +11,8 @@
 
 ### Dataset 
 <p align="center">
-  <img src="/figure/model.png" width=50%> <br>
-caption: Man in apron standing on front of oven with pans and bakeware
+  <img src="/figure/000000397133.jpg" width=50%> <br>
+Caption: Man in apron standing on front of oven with pans and bakeware
   
 ```bash
 wget http://images.cocodataset.org/zips/train2017.zip   # train dataset
