@@ -133,7 +133,5 @@ class KobertCRF(nn.Module):
 |**KoBERT+FRU-Adapter+CRF**|95.38M|**0.8703**||
 
 ### Reference Repo
-- [SKTBrain KoBERT](https://github.com/SKTBrain/KoBERT)
-- [Finetuning configuration from huggingface](https://github.com/huggingface/pytorch-transformers/blob/master/examples/run_multiple_choice.py)
-- [SKTBrain KoBERT Error revise](https://github.com/SKTBrain/KoBERT/tree/master/kobert_hf)
-- [FRU-Adapter](https://github.com/SeoulTech-HCIRLab/FRU-Adapter)
+- [IP-Adapter](https://github.com/tencent-ailab/IP-Adapter?tab=readme-ov-file)
+
