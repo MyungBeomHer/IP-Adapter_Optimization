@@ -99,11 +99,11 @@ accelerate launch --num_processes 4 --multi_gpu \
 [tutorial_train.py](tutorial_train.py)
 
 - Benchmark (COCO2017val)
-
+For fair Comparison, we train the two cases in COCO2017train dataset and then evaluate COCO2017val dataset.
 |Model|Clip Score|
 |:------:|:------:|
 |IP-Adapter||
-|IP-Adapter||
+|IP-Adapter tuning LayerNorm||
 
 ### Reference Repo
 - [IP-Adapter](https://github.com/tencent-ailab/IP-Adapter?tab=readme-ov-file)
