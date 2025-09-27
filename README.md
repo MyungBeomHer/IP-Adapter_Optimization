@@ -100,12 +100,12 @@ accelerate launch --num_processes 4 --multi_gpu \
 
 - Benchmark (COCO2017val)
 
-|Model|Params|MacroAvg F1 score|
-|:------:|:------:|:---:|
-|KoBERT|92.21M|0.8554|
-|KoBERT+BiLSTM+CRF|95.75M|0.8659||
-|**KoBERT+FRU-Adapter+CRF**|95.38M|**0.8703**||
+|Model|Clip Score|
+|:------:|:------:|
+|IP-Adapter||
+|IP-Adapter||
 
 ### Reference Repo
 - [IP-Adapter](https://github.com/tencent-ailab/IP-Adapter?tab=readme-ov-file)
 - [download COCO2017dataset](https://iambeginnerdeveloper.tistory.com/207)
+- [Parameter-Efficient Tuning on Layer Normalization for Pre-trained Language Models](https://arxiv.org/abs/2211.08682)
