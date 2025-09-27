@@ -10,6 +10,10 @@
 프로젝트 언어 : Pytorch
 
 ### Dataset 
+<p align="center">
+  <img src="/figure/model.png" width=50%> <br>
+caption: Man in apron standing on front of oven with pans and bakeware
+  
 ```bash
 wget http://images.cocodataset.org/zips/train2017.zip   # train dataset
 wget http://images.cocodataset.org/zips/val2017.zip     # validation dataset
