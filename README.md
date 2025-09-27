@@ -1,5 +1,5 @@
 # IP-Adapter_Optimization
-## Diffusion based image generator
+## Diffusion based image generator using image and text
 
 팀원 : [허명범](https://github.com/MyungBeomHer)
 
@@ -9,25 +9,12 @@
 ### 프로젝트 언어 및 환경
 프로젝트 언어 : Pytorch
 
-### Dataset
-- [NER Dataset from 한국해양대학교 자연언어처리 연구실](https://github.com/kmounlp/NER)
-
-### NER tagset
-- 총 8개의 태그가 있음
-    - PER: 사람이름
-    - LOC: 지명
-    - ORG: 기관명
-    - POH: 기타
-    - DAT: 날짜
-    - TIM: 시간
-    - DUR: 기간
-    - MNY: 통화
-    - PNT: 비율
-    - NOH: 기타 수량표현
-- 개체의 범주 
-    - 개체이름: 사람이름(PER), 지명(LOC), 기관명(ORG), 기타(POH)
-    - 시간표현: 날짜(DAT), 시간(TIM), 기간 (DUR)
-    - 수량표현: 통화(MNY), 비율(PNT), 기타 수량표현(NOH)
+### Dataset 
+```bash
+wget http://images.cocodataset.org/zips/train2017.zip   # train dataset
+wget http://images.cocodataset.org/zips/val2017.zip     # validation dataset
+wget http://images.cocodataset.org/annotations/annotations_trainval2017.zip
+```
 
 ## ➡️ Data Preparation
 ```bash
@@ -42,7 +29,20 @@ pip install -r requirements.txt
 
 ### train
 ```bash
-python train_bert_crf.py 
+accelerate launch --num_processes 4 --multi_gpu --mixed_precision "fp16" \
+  tutorial_train.py \
+  --pretrained_model_name_or_path="sd-legacy/stable-diffusion-v1-5" \
+  --image_encoder_path="/home/gpuadmin/MB/IP-Adapter-main/ip_adapter/models/image_encoder" \
+  --data_json_file="/data1/coco2017/COCO2017/train_pairs.json" \
+  --data_root_path="/data1/coco2017/COCO2017/train2017" \
+  --mixed_precision="fp16" \
+  --resolution=512 \
+  --train_batch_size=8 \
+  --dataloader_num_workers=4 \
+  --learning_rate=1e-04 \
+  --weight_decay=0.01 \
+  --output_dir="output_dir_layerNorm" \
+  --save_steps=2000
 ```
 
 ### Model
@@ -51,80 +51,28 @@ python train_bert_crf.py
 </p>
 
 ```
-#KobertCRF + FRU-Adapter
-class KobertCRF(nn.Module):
-    """ KoBERT with CRF FRU-Adapter"""
-    def __init__(self, config, num_classes, vocab=None) -> None:
-        super(KobertCRF, self).__init__()
-
-        if vocab is None:
-            self.bert, self.vocab = get_pytorch_kobert_model()
-        else:
-            self.bert = BertModel(config=BertConfig.from_dict(bert_config))
-            self.vocab = vocab
-
-        self.dropout = nn.Dropout(config.dropout)
-        self.position_wise_ff = nn.Linear(config.hidden_size, num_classes)
-        self.crf = CRF(num_labels=num_classes)
-        self.pad_id = getattr(config, "pad_id", 1)  # 기본 1
-
-        self.tsea_blocks = nn.ModuleList([
-            FRU_Adapter(embded_dim=768) for _ in range(12)
-        ])
-
-        # head_mask = [None] * self.bert.config.num_hidden_layers
-
-        for param in self.bert.encoder.parameters():
-           param.requires_grad = False
-
-
-
-    def forward(self, input_ids, token_type_ids=None, tags=None):
-        attention_mask = input_ids.ne(self.vocab.token_to_idx[self.vocab.padding_token]).float() # B, 30
-
-        attention_mask = attention_mask.unsqueeze(1).unsqueeze(2)
-
-        #outputs: (last_encoder_layer, pooled_output, attention_weight) 
-        # for i, layer_module in enumerate(self.bert.encoder.layer):
-        hidden_states  = self.bert.embeddings(input_ids=input_ids, token_type_ids=token_type_ids) # B 30 768
-        # head_mask = [None] * self.bert.config.num_hidden_layers
-        
-        for i, blk in enumerate(self.bert.encoder.layer):
-            hidden_states = blk(hidden_states,attention_mask)#,head_mask[i])
-            hidden_states = hidden_states[0] if isinstance(hidden_states, (tuple, list)) else hidden_states
-            hidden_states = hidden_states + self.tsea_blocks[i](hidden_states)
-        
-        last_encoder_layer = hidden_states #outputs[0]
-        last_encoder_layer = self.dropout(last_encoder_layer)
-        emissions = self.position_wise_ff(last_encoder_layer)
-        mask = input_ids.ne(self.pad_id)   # dtype=bool
-        max_len = input_ids.size(1)
-        pad_val = self.pad_id  # = 1
-
-        def _pad_paths(paths):
-            # paths: List[List[int]] (batch 크기)
-            out = []
-            for p in paths:
-                if len(p) < max_len:
-                    p = p + [pad_val] * (max_len - len(p))
-                out.append(p)
-            return torch.tensor(out, device=input_ids.device, dtype=torch.long)
-
-        if tags is not None:
-            # log_likelihood, sequence_of_tags = self.crf(emissions, tags), self.crf.decode(emissions)
-            # sequence_of_tags = self.crf.decode(emissions, mask=mask)
-            log_likelihood = self.crf(emissions, tags, mask=mask)
-            sequence_of_tags = self.crf.viterbi_decode(emissions, mask=mask)
-            sequence_of_tags = _pad_paths(sequence_of_tags) #---
-            return log_likelihood, sequence_of_tags
-        else:
-            sequence_of_tags = self.crf.viterbi_decode(emissions, mask=mask)
-            sequence_of_tags = _pad_paths(sequence_of_tags) #---
-            return sequence_of_tags
+    image_encoder.requires_grad_(False)
+    for name, param in image_encoder.named_parameters():
+        if 'norm' in name:
+            param.requires_grad = True
+    ...
+    # optimizer
+    # params_to_opt = itertools.chain(ip_adapter.image_proj_model.parameters(),  ip_adapter.adapter_modules.parameters())
+    #---Tuning for MB---#
+    params_to_opt = itertools.chain(ip_adapter.image_proj_model.parameters(),  ip_adapter.adapter_modules.parameters(), image_encoder_layerNorm)
+    ...
+    # Prepare everything with our `accelerator`.
+    # ip_adapter, optimizer, train_dataloader = accelerator.prepare(ip_adapter, optimizer, train_dataloader)
+    ip_adapter, image_encoder, optimizer, train_dataloader = accelerator.prepare(
+                                                                        ip_adapter, image_encoder, optimizer, train_dataloader
+                                                                        )
+    ...
+    # with torch.no_grad():
+    image_embeds = image_encoder(batch["clip_images"].to(accelerator.device, dtype=weight_dtype)).image_embeds
 ```
-[model/net.py](model/net.py)
+[tutorial_train.py](tutorial_train.py)
 
-- Benchmark (NER Dataset)
+- Benchmark (COCO2017val)
 
 |Model|Params|MacroAvg F1 score|
 |:------:|:------:|:---:|
@@ -134,4 +82,4 @@ class KobertCRF(nn.Module):
 
 ### Reference Repo
 - [IP-Adapter](https://github.com/tencent-ailab/IP-Adapter?tab=readme-ov-file)
-
+- [download COCO2017dataset](https://iambeginnerdeveloper.tistory.com/207)
