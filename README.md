@@ -1,7 +1,7 @@
 # IP-Adapter_Optimization
 ## Diffusion based image generator using image and text
 
-팀원 : [허명범](https://github.com/MyungBeomHer)
+팀원 : [Myungbeom Her](https://github.com/MyungBeomHer)
 
 ### 프로젝트 주제 
 이미지와 텍스트를 이용한 이미지 생성기 
