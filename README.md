@@ -91,7 +91,8 @@ accelerate launch --num_processes 4 --multi_gpu \
   --fp16
 ```
 
-####Evaluate the CLIP-I ###
+#### Evaluate the CLIP-I 
+```bash
 CUDA_VISIBLE_DEVICES=1 \
 python eval_clip_scores.py \
 --pairs_json /data1/coco2017/COCO2017/val_pairs.json \
@@ -100,6 +101,7 @@ python eval_clip_scores.py \
 --out_csv clip_eval_val_IP-Adapter.csv \
 --clip_model openai/clip-vit-large-patch14 \
 --batch_size 256
+```
 
 ### preprocessing for tuning LayerNorm
 <p align="center">
@@ -129,11 +131,11 @@ python eval_clip_scores.py \
 [tutorial_train.py](tutorial_train.py)
 
 - Benchmark (COCO2017val)
-For fair Comparison, we train the two cases in COCO2017train dataset and then evaluate COCO2017val dataset.
-|:------:|:------:|
-|Model|Clip Score|
-|IP-Adapter|???||
-|IP-Adapter tuning LayerNorm|???||
+For fair Comparison, we train the two cases in COCO2017train dataset during 20 epoch and then evaluate COCO2017val dataset.
+|:------:|:------:|:------:|
+|Model|Tunable Params|Clip-I|
+|IP-Adapter|22M|0.716|
+|IP-Adapter tuning LayerNorm (ours)|22.2M|0.732|
 
 ### Reference Repo
 - [IP-Adapter](https://github.com/tencent-ailab/IP-Adapter?tab=readme-ov-file)
