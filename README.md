@@ -132,8 +132,9 @@ python eval_clip_scores.py \
 
 - Benchmark (COCO2017val)
 For fair Comparison, we train the two cases in COCO2017train dataset during 20 epoch and then evaluate COCO2017val dataset.
+
 |Model|Tunable Params|Clip-I|
-|:------:|:------:|:------:|
+|:------:|:------:|:---:|
 |IP-Adapter|22M|0.716|
 |IP-Adapter tuning LayerNorm (ours)|22.2M|0.732|
 
