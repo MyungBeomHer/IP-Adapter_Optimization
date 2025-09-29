@@ -91,7 +91,7 @@ accelerate launch --num_processes 4 --multi_gpu \
   --fp16
 ```
 
-#### Evaluate the CLIP-I 
+ ### Evaluate for CLIP-I 
 ```bash
 CUDA_VISIBLE_DEVICES=1 \
 python eval_clip_scores.py \
