@@ -33,10 +33,27 @@ python make_coco_pairs.py \
   --pick random
 ```
 
-### Requirements
+### Installation
 ```bash
 pip install -r requirements.txt
+pip install git+https://github.com/tencent-ailab/IP-Adapter.git
+
+# download the models
+cd ip-adapter
+git lfs install
+git clone https://huggingface.co/h94/IP-Adapter
+mv ip-adapter/models models
+mv ip-adapter/sdxl_models sdxl_models
 ```
+
+## Download Models
+
+you can download models from [here](https://huggingface.co/h94/IP-Adapter). To run the demo, you should also download the following models:
+- [runwayml/stable-diffusion-v1-5](https://huggingface.co/runwayml/stable-diffusion-v1-5)
+- [stabilityai/sd-vae-ft-mse](https://huggingface.co/stabilityai/sd-vae-ft-mse)
+- [SG161222/Realistic_Vision_V4.0_noVAE](https://huggingface.co/SG161222/Realistic_Vision_V4.0_noVAE)
+- [ControlNet models](https://huggingface.co/lllyasviel)
+
 
 ### train
 ```bash
@@ -74,6 +91,15 @@ accelerate launch --num_processes 4 --multi_gpu \
   --fp16
 ```
 
+####Evaluate the CLIP-I ###
+CUDA_VISIBLE_DEVICES=1 \
+python eval_clip_scores.py \
+--pairs_json /data1/coco2017/COCO2017/val_pairs.json \
+--image_root /data1/coco2017/COCO2017/val2017 \
+--gen_root /home/gpuadmin/MB/ipadapter_gen_tuning_LN/ckpt20 \
+--out_csv clip_eval_val_IP-Adapter.csv \
+--clip_model openai/clip-vit-large-patch14 \
+--batch_size 256
 
 ### preprocessing for tuning LayerNorm
 <p align="center">
