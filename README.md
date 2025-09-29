@@ -133,7 +133,7 @@ python eval_clip_scores.py \
 - Benchmark (COCO2017val)
 
 <p align="center">
-  <img src="/figure/ip-adapter tuning img.png" width=50%> <br>
+  <img src="/figure/ip-adapter tuning img.png" width=100%> <br>
 
 For fair Comparison, we train the two cases in COCO2017train dataset during 20 epoch and then evaluate COCO2017val dataset.
 
