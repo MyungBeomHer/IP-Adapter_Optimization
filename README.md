@@ -137,6 +137,23 @@ For fair Comparison, we train the two cases in COCO2017train dataset during 20 e
 |IP-Adapter|22M|0.716|
 |IP-Adapter tuning LayerNorm (ours)|22.2M|0.732|
 
+<table><tbody>
+<!-- START TABLE -->
+<!-- TABLE HEADER -->
+<th valign="bottom">dataset</th>
+<th valign="bottom">Tunable Params</th>
+<th valign="bottom">Clip-I</th>
+
+<!-- TABLE BODY -->
+<tr><td align="left">RAF-DB</td>
+<th valign="bottom">IP-Adapter</th>
+<th valign="bottom">22M</th>
+  <th valign="bottom">0.716</th>
+<tr><td align="left">IP-Adapter tuning LayerNorm (ours)</td>
+<tr><td align="left">22.2M</td>
+<tr><td align="left">0.732</td>
+</tbody></table>
+
 ### Reference Repo
 - [IP-Adapter](https://github.com/tencent-ailab/IP-Adapter?tab=readme-ov-file)
 - [download COCO2017dataset](https://iambeginnerdeveloper.tistory.com/207)
