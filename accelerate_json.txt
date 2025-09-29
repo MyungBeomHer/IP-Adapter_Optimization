@@ -1,0 +1,64 @@
+### model train 
+accelerate launch --num_processes 4 --multi_gpu --mixed_precision "fp16" \
+  tutorial_train.py \
+  --pretrained_model_name_or_path="sd-legacy/stable-diffusion-v1-5" \
+  --image_encoder_path="/home/gpuadmin/MB/IP-Adapter-main/ip_adapter/models/image_encoder" \
+  --data_json_file="/data1/coco2017/COCO2017/train_pairs.json" \
+  --data_root_path="/data1/coco2017/COCO2017/train2017" \
+  --mixed_precision="fp16" \
+  --resolution=512 \
+  --train_batch_size=8 \
+  --dataloader_num_workers=4 \
+  --learning_rate=1e-04 \
+  --weight_decay=0.01 \
+  --output_dir="output_dir_layerNorm" \
+  --save_steps=2000   > /dev/null 2>&1 &
+
+### origin img generate ### 
+CUDA_VISIBLE_DEVICES=0,1,2,3 \
+accelerate launch --num_processes 4 --multi_gpu \
+  gen_ipadapter_from_ckpt.py \
+  --pretrained_model runwayml/stable-diffusion-v1-5 \
+  --image_encoder_path /home/gpuadmin/MB/IP-Adapter-main/ip_adapter/models/image_encoder \
+  --checkpoint_dir /home/gpuadmin/MB/IP-Adapter-main/output_dir_layerNorm/checkpoint-20 \
+  --pairs_json /data1/coco2017/COCO2017/val_pairs.json \
+  --image_root /data1/coco2017/COCO2017/val2017 \
+  --out_dir /home/gpuadmin/MB/ipadapter_gen/ckpt20 \
+  --num_images_per_sample 4 \
+  --steps 18 \
+  --fp16
+
+  ### img generate by Tuning Img encoder 
+  #1st output_dir_layerNorm/model_1.safetensors -move/change-> image_encoder/model.safetensors
+  #2nd image_encoder/config.json -move-> image_encoder-20/config.json
+CUDA_VISIBLE_DEVICES=0,1,2,3 \
+accelerate launch --num_processes 4 --multi_gpu \
+  gen_ipadapter_from_ckpt.py \
+  --pretrained_model runwayml/stable-diffusion-v1-5 \
+  --image_encoder_path /home/gpuadmin/MB/IP-Adapter-main/output_dir_layerNorm/image_encoder \
+  --checkpoint_dir /home/gpuadmin/MB/IP-Adapter-main/output_dir_layerNorm/checkpoint-20 \
+  --pairs_json /data1/coco2017/COCO2017/val_pairs.json \
+  --image_root /data1/coco2017/COCO2017/val2017 \
+  --out_dir /home/gpuadmin/MB/ipadapter_gen_tuning_LN/ckpt20 \
+  --num_images_per_sample 4 \
+  --steps 18 \
+  --fp16
+
+####IP-Adapter###
+  python eval_clip_scores.py \
+--pairs_json /data1/coco2017/COCO2017/val_pairs.json \
+--image_root /data1/coco2017/COCO2017/val2017 \
+--gen_root /home/gpuadmin/MB/ipadapter_gen/ckpt20 \
+--out_csv clip_eval_val_IP-Adapter.csv \
+--clip_model openai/clip-vit-large-patch14 \
+--batch_size 256
+
+####IP-Adapter tuning LN ###
+CUDA_VISIBLE_DEVICES=1 \
+python eval_clip_scores.py \
+--pairs_json /data1/coco2017/COCO2017/val_pairs.json \
+--image_root /data1/coco2017/COCO2017/val2017 \
+--gen_root /home/gpuadmin/MB/ipadapter_gen_tuning_LN/ckpt20 \
+--out_csv clip_eval_val_IP-Adapter.csv \
+--clip_model openai/clip-vit-large-patch14 \
+--batch_size 256
