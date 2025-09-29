@@ -136,30 +136,7 @@ For fair Comparison, we train the two cases in COCO2017train dataset during 20 e
 |Model|Tunable Params|Clip-I|
 |:------:|:------:|:---:|
 |IP-Adapter|22M|0.716|
-|IP-Adapter tuning LayerNorm (ours)|22.2M|0.732|
-
-|Model|MacroAvg F1 score|Epoch|Date|
-|:------:|:------:|:---:|:---:|
-|KoBERT|0.8554|12|191129|
-|**KoBERT+CRF**|**0.8756**|12|191129|
-|KoBERT+BiLSTM+CRF|0.8659|12|191129|
-
-<table><tbody>
-<!-- START TABLE -->
-<!-- TABLE HEADER -->
-<th valign="bottom">dataset</th>
-<th valign="bottom">Tunable Params</th>
-<th valign="bottom">Clip-I</th>
-
-<!-- TABLE BODY -->
-<tr><td align="left">RAF-DB</td>
-<th valign="bottom">IP-Adapter</th>
-<th valign="bottom">22M</th>
-  <th valign="bottom">0.716</th>
-<tr><td align="left">IP-Adapter tuning LayerNorm (ours)</td>
-<tr><td align="left">22.2M</td>
-<tr><td align="left">0.732</td>
-</tbody></table>
+|**IP-Adapter tuning LayerNorm (ours)**|22.2M|**0.732**|
 
 ### Reference Repo
 - [IP-Adapter](https://github.com/tencent-ailab/IP-Adapter?tab=readme-ov-file)
